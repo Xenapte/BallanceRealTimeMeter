@@ -17,7 +17,7 @@ void RealTimeMeter::OnLoad() {
   streak_level = prop_streak->GetInteger();
 }
 
-void RealTimeMeter::OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) {
+void RealTimeMeter::OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IProperty* prop) {
   if (prop == prop_enable) {
     enabled = prop_enable->GetBoolean();
     if (enabled) {
@@ -32,9 +32,9 @@ void RealTimeMeter::OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* p
   }
 }
 
-void RealTimeMeter::OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName,
-																 CK_CLASSID filterClass, BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials,
-																 BOOL dynamic, XObjectArray* objArray, CKObject* masterObj) {
+void RealTimeMeter::OnLoadObject(C_CKSTRING filename, CKBOOL isMap, C_CKSTRING masterName,
+										CK_CLASSID filterClass, CKBOOL addtoscene, CKBOOL reuseMeshes, CKBOOL reuseMaterials,
+										CKBOOL dynamic, XObjectArray* objArray, CKObject* masterObj) {
 	if (!enabled || !isMap)
     return;
   if (!status)

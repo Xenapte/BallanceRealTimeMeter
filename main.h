@@ -1,8 +1,10 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include <BMLPlus/BMLAll.h>
 #include <chrono>
 #include <memory>
+
+typedef const char* C_CKSTRING;
 
 extern "C" {
 	__declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -12,18 +14,18 @@ class RealTimeMeter : public IMod {
 public:
 	RealTimeMeter(IBML* bml) : IMod(bml) {};
 
-	virtual CKSTRING GetID() override { return "RealTimeMeter"; }
-	virtual CKSTRING GetVersion() override { return "0.1.0"; }
-	virtual CKSTRING GetName() override { return "Real Time Meter"; }
-	virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-	virtual CKSTRING GetDescription() override { return "Measure the actual time elapsed during your gameplays."; }
+	virtual C_CKSTRING GetID() override { return "RealTimeMeter"; }
+	virtual C_CKSTRING GetVersion() override { return "0.1.0"; }
+	virtual C_CKSTRING GetName() override { return "Real Time Meter"; }
+	virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
+	virtual C_CKSTRING GetDescription() override { return "Measure the actual time elapsed during your gameplays."; }
 	DECLARE_BML_VERSION;
 
 	void OnLoad() override;
-	void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override;
-	void OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName,
-										CK_CLASSID filterClass, BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials,
-										BOOL dynamic, XObjectArray* objArray, CKObject* masterObj) override;
+	void OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IProperty* prop) override;
+	void OnLoadObject(C_CKSTRING filename, CKBOOL isMap, C_CKSTRING masterName,
+										CK_CLASSID filterClass, CKBOOL addtoscene, CKBOOL reuseMeshes, CKBOOL reuseMaterials,
+										CKBOOL dynamic, XObjectArray* objArray, CKObject* masterObj) override;
 	void OnPostResetLevel() override;
 	void OnPreExitLevel() override;
 	void OnStartLevel() override;
