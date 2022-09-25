@@ -15,7 +15,7 @@ public:
 	RealTimeMeter(IBML* bml) : IMod(bml) {};
 
 	virtual C_CKSTRING GetID() override { return "RealTimeMeter"; }
-	virtual C_CKSTRING GetVersion() override { return "0.1.1"; }
+	virtual C_CKSTRING GetVersion() override { return "0.1.2"; }
 	virtual C_CKSTRING GetName() override { return "Real Time Meter"; }
 	virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
 	virtual C_CKSTRING GetDescription() override { return "Measure the actual time elapsed during your gameplays."; }
@@ -36,16 +36,17 @@ public:
 	void OnProcess() override;
 
 	void init_status_label();
-	void format_time(float duration, char* buf);
-	void update_status(float bml_time_ms, float sys_time_ms);
+	inline void format_time(float duration, char* buf);
+	constexpr int64_t get_system_timestamp();
+	inline void update_status(float bml_time_ms, float sys_time_ms);
 
 private:
 	std::unique_ptr<BGui::Label> status;
 	bool enabled = false, counting = false;
 	bool level_finished = false, level_exited = true, streak_completed = false;
 	float bml_time = 0;
-	int64_t sys_time = 0, last_finish_sys_time = 0;
-	CKTimeManager *time_manager = nullptr;
+	int64_t sys_time = 0, last_finish_sys_time = 0, last_exit_sys_time = 0;
+	CKTimeManager* time_manager = nullptr;
 	IProperty *prop_enable = nullptr, *prop_streak = nullptr;
 	int streak_level = 0, current_level = 0;
 };
