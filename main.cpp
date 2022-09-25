@@ -56,10 +56,14 @@ void RealTimeMeter::OnPostResetLevel() {
 void RealTimeMeter::OnPreLoadLevel() {
   if (!enabled)
     return;
+  // update current level
+  m_bml->GetArrayByName("CurrentLevel")->GetElementValue(0, 0, &current_level);
   if (streak_level > 0 && level_exited) {
-    bml_time = 0;
-    sys_time = std::chrono::steady_clock::now().time_since_epoch().count()
-      - static_cast<double>(time_manager->GetLastDeltaTime()) * 1000000;
+    if (current_level == 1 ||
+        get_system_timestamp() - last_exit_sys_time > 8000000000) {
+      bml_time = 0;
+      sys_time = get_system_timestamp() - static_cast<double>(time_manager->GetLastDeltaTime()) * 1e6;
+    }
     level_exited = false;
   }
 }
@@ -69,6 +73,7 @@ void RealTimeMeter::OnPreExitLevel() {
     return;
   status.reset();
   level_exited = true;
+  last_exit_sys_time = get_system_timestamp();
   level_finished = false;
   counting = false;
   streak_completed = false;
@@ -77,8 +82,6 @@ void RealTimeMeter::OnPreExitLevel() {
 void RealTimeMeter::OnStartLevel() {
   if (!enabled)
     return;
-  // update current level
-  m_bml->GetArrayByName("CurrentLevel")->GetElementValue(0, 0, &current_level);
   counting = false;
   level_finished = false;
 }
@@ -104,8 +107,7 @@ void RealTimeMeter::OnCounterActive() {
   if (streak_level <= 0 || level_exited) {
     bml_time = 0;
     // SR Timer is in fact counting 1 more frame than the acutal SR time
-    sys_time = std::chrono::steady_clock::now().time_since_epoch().count()
-      - static_cast<double>(time_manager->GetLastDeltaTime()) * 1000000;
+    sys_time = get_system_timestamp() - static_cast<double>(time_manager->GetLastDeltaTime()) * 1e6;
     level_exited = false;
   }
   status->SetVisible(true);
@@ -120,7 +122,8 @@ void RealTimeMeter::OnProcess() {
     bml_time += time_manager->GetLastDeltaTime();
     update_status(bml_time, static_cast<float>((current_time - sys_time) / 1000000));
   }
-  else if (!level_exited && streak_level > 0 && !streak_completed && current_time - last_finish_sys_time > 1610612735) {
+  else if (!level_exited && streak_level > 0 && !streak_completed
+           && current_time - last_finish_sys_time > 1610612735) {
     update_status(bml_time, static_cast<float>((current_time - sys_time) / 1000000));
   }
   if (status)
@@ -141,7 +144,7 @@ void RealTimeMeter::init_status_label() {
   status->SetVisible(true);
 }
 
-void RealTimeMeter::format_time(float duration, char* buf) {
+inline void RealTimeMeter::format_time(float duration, char* buf) {
   int counter = int(duration);
   int ms = counter % 1000;
   counter /= 1000;
@@ -153,7 +156,11 @@ void RealTimeMeter::format_time(float duration, char* buf) {
   snprintf(buf, 16, "%02d:%02d:%02d.%03d", h, m, s, ms);
 }
 
-void RealTimeMeter::update_status(float bml_time_ms, float sys_time_ms) {
+constexpr int64_t RealTimeMeter::get_system_timestamp() {
+  return std::chrono::steady_clock::now().time_since_epoch().count();
+}
+
+inline void RealTimeMeter::update_status(float bml_time_ms, float sys_time_ms) {
   if (!status)
     return;
   char text[64], ingame_time_text[16], world_time_text[16];
